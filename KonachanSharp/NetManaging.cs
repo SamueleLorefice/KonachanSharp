@@ -1,29 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace KonachanSharp {
-    
-    class NetManaging {
-        public class PostsArgs : EventArgs {
-            List<Post> FetchedPosts;
-            public PostsArgs(KCPostResponse response) {
-                foreach (Post post in response.FetchedPosts) {
-                    this.FetchedPosts.Add(post);
-                }
-            }
+    public class PostEventArgs {
+        public Post FetchedPost;
+        public PostEventArgs(Post response) {
+            FetchedPost = response;
+        }
+    }
+    public class PostsEventArgs : EventArgs {
+        public List<Post> FetchedPosts = new List<Post>();
+        public PostsEventArgs(List<Post> response) {
+            FetchedPosts = response;
+        }
+    }
+
+    public class KonachanService {
+        public event EventHandler<PostEventArgs> PostReceived;
+        protected virtual void OnPostReceived(Post response) {
+            PostReceived?.Invoke(this, new PostEventArgs(response));
+        }
+        public void GetPost(int page, string[] tags, Rating rating) {
+            // Create a request
+            WebRequest request = WebRequest.Create(CombineUri("post.json", 1, page, tags, rating));
+            request.Method = "GET"; // Set the Method property of the request to GET.
+            Stream response = request.GetResponse().GetResponseStream(); // Get the response.
+            StreamReader reader = new StreamReader(response); // Open the stream using a StreamReader for easy access.
+            string _out = reader.ReadToEnd(); // Read the content.
+            reader.Close(); // Clean up the streams.
+            response.Close();
+            DeserializePost(_out); // Execute deserialization
+        }
+        private void DeserializePost(string postdata) {
+            List<Post> response = JsonConvert.DeserializeObject<List<Post>>(postdata);
+            OnPostsReceived(response);
         }
 
-        EventHandler<PostsArgs> PostsReceived;
-        protected virtual void OnPostReceived(KCPostResponse response) {
-            PostsReceived?.Invoke(this, new PostsArgs(response));
+        public event EventHandler<PostsEventArgs> PostsReceived;
+        protected virtual void OnPostsReceived(List<Post> response) {
+            PostsReceived?.Invoke(this, new PostsEventArgs(response));
         }
-
-        public static string GetPosts(int limit, int page, string[] tags, Rating rating = Rating.Questionable) {
+        public void GetPosts(int limit, int page, string[] tags, Rating rating) {
             // Create a request
             WebRequest request = WebRequest.Create(CombineUri("post.json", limit, page, tags, rating));
             request.Method = "GET"; // Set the Method property of the request to GET.
@@ -32,7 +52,11 @@ namespace KonachanSharp {
             string _out = reader.ReadToEnd(); // Read the content.
             reader.Close(); // Clean up the streams.
             response.Close();
-            return _out; // Return the value
+            DeserializePosts(_out); // Execute deserialization
+        }
+        private void DeserializePosts(string postsdata) {
+            List<Post> response = JsonConvert.DeserializeObject<List<Post>>(postsdata);
+            OnPostsReceived(response);
         }
 
         private static string CombineUri(string method, int limit, int page, string[] tags, Rating rating = Rating.Questionable) {

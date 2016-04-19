@@ -26,7 +26,7 @@
         public int jpeg_width { get; set; }
         public int jpeg_height { get; set; }
         public int jpeg_file_size { get; set; }
-        public Rating rating { get; set; }
+        public string rating { get; set; }
         public bool has_children { get; set; }
         public object parent_id { get; set; }
         public string status { get; set; }
