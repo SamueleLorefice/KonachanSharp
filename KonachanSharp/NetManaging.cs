@@ -9,22 +9,18 @@ using System.IO;
 namespace KonachanSharp {
     
     class NetManaging {
-        public class Posts : EventArgs {
-            int limit;
-            int page;
-            List<string> tags;
-            Rating rating;
-            public Posts(KCPostResponse) {
-                this.limit = limit;
-                this.page = page;
-                this.tags = tags.ToList();
-                this.rating = rating;
+        public class PostsArgs : EventArgs {
+            List<Post> FetchedPosts;
+            public PostsArgs(KCPostResponse response) {
+                foreach (Post post in response.FetchedPosts) {
+                    this.FetchedPosts.Add(post);
+                }
             }
         }
-        EventHandler<Posts> PostsReceived;
-        protected virtual void OnPostReceived() {
-            if (PostsReceived != null)
-                PostsReceived(this, new Posts(???))
+
+        EventHandler<PostsArgs> PostsReceived;
+        protected virtual void OnPostReceived(KCPostResponse response) {
+            PostsReceived?.Invoke(this, new PostsArgs(response));
         }
 
         public static string GetPosts(int limit, int page, string[] tags, Rating rating = Rating.Questionable) {
