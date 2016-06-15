@@ -38,10 +38,16 @@ namespace KonachanSharp {
             List<Post> response = JsonConvert.DeserializeObject<List<Post>>(postdata);
             OnPostsReceived(response);
         }
-
         public event EventHandler<PostsEventArgs> PostsReceived;
         protected virtual void OnPostsReceived(List<Post> response) {
-            PostsReceived?.Invoke(this, new PostsEventArgs(response));
+            if(response.Count == 1)
+            {
+                PostReceived?.Invoke(this, new PostEventArgs(response[0]));
+            }
+            else
+            {
+                PostsReceived?.Invoke(this, new PostsEventArgs(response));
+            }
         }
         public void GetPosts(int limit, int page, string[] tags, Rating rating) {
             // Create a request
@@ -58,7 +64,6 @@ namespace KonachanSharp {
             List<Post> response = JsonConvert.DeserializeObject<List<Post>>(postsdata);
             OnPostsReceived(response);
         }
-
         private static string CombineUri(string method, int limit, int page, string[] tags, Rating rating = Rating.Questionable) {
             string _out = "https://konachan.com/" + method;
             _out += "?limit=" + limit;
