@@ -27,6 +27,7 @@ namespace KonachanSharp {
             // Create a request
             WebRequest request = WebRequest.Create(CombineUri("post.json", 1, page, tags, rating));
             request.Method = "GET"; // Set the Method property of the request to GET.
+            Console.WriteLine("Requesting a post from konachan");
             Stream response = request.GetResponse().GetResponseStream(); // Get the response.
             StreamReader reader = new StreamReader(response); // Open the stream using a StreamReader for easy access.
             string _out = reader.ReadToEnd(); // Read the content.
@@ -53,6 +54,7 @@ namespace KonachanSharp {
             // Create a request
             WebRequest request = WebRequest.Create(CombineUri("post.json", limit, page, tags, rating));
             request.Method = "GET"; // Set the Method property of the request to GET.
+            Console.WriteLine("Requesting posts from konachan");
             Stream response = request.GetResponse().GetResponseStream(); // Get the response.
             StreamReader reader = new StreamReader(response); // Open the stream using a StreamReader for easy access.
             string _out = reader.ReadToEnd(); // Read the content.
@@ -65,7 +67,7 @@ namespace KonachanSharp {
             OnPostsReceived(response);
         }
         private static string CombineUri(string method, int limit, int page, string[] tags, Rating rating = Rating.Questionable) {
-            string _out = "https://konachan.com/" + method;
+            string _out = @"https://konachan.com/" + method;
             _out += "?limit=" + limit;
             if (page > 0)
                 _out += "+page=" + page;
