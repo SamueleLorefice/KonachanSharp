@@ -28,8 +28,10 @@ namespace KonachanSharp {
             WebRequest request = WebRequest.Create(CombineUri("post.json", 1, page, tags, rating));
             request.Method = "GET"; // Set the Method property of the request to GET.
             Console.WriteLine("Requesting a post from konachan");
-            Stream response = request.GetResponse().GetResponseStream(); // Get the response.
-            StreamReader reader = new StreamReader(response); // Open the stream using a StreamReader for easy access.
+            WebResponse response = request.GetResponse(); // Get the response.
+            Console.WriteLine("GetUpdates request status:" + ((HttpWebResponse)response).StatusDescription);
+            Stream datastream = request.GetResponse().GetResponseStream(); // Get the response.
+            StreamReader reader = new StreamReader(datastream); // Open the stream using a StreamReader for easy access.
             string _out = reader.ReadToEnd(); // Read the content.
             reader.Close(); // Clean up the streams.
             response.Close();
@@ -55,8 +57,10 @@ namespace KonachanSharp {
             WebRequest request = WebRequest.Create(CombineUri("post.json", limit, page, tags, rating));
             request.Method = "GET"; // Set the Method property of the request to GET.
             Console.WriteLine("Requesting posts from konachan");
-            Stream response = request.GetResponse().GetResponseStream(); // Get the response.
-            StreamReader reader = new StreamReader(response); // Open the stream using a StreamReader for easy access.
+            WebResponse response = request.GetResponse(); // Get the response.
+            Console.WriteLine("GetUpdates request status:" + ((HttpWebResponse)response).StatusDescription);
+            Stream datastream = request.GetResponse().GetResponseStream(); // Get the response.
+            StreamReader reader = new StreamReader(datastream); // Open the stream using a StreamReader for easy access.
             string _out = reader.ReadToEnd(); // Read the content.
             reader.Close(); // Clean up the streams.
             response.Close();
@@ -70,12 +74,13 @@ namespace KonachanSharp {
             string _out = @"https://konachan.com/" + method;
             _out += "?limit=" + limit;
             if (page > 0)
-                _out += "+page=" + page;
+                _out += "&page=" + page;
             if (tags != null) {
-                _out += "+tags=rating:" + rating.ToString().ToLower();
+                _out += "&tags=";
                 foreach (string item in tags) {
                     _out += "+" + item;
                 }
+                _out += "+rating:" + rating.ToString().ToLower();
             }
             return _out;
         }
